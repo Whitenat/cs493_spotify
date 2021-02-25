@@ -177,6 +177,7 @@
   padding: 10px;
 }
 .artist_container {
+  display: inline-block;
   width: 80%;
   height: 400px;
   margin: auto;

@@ -142,7 +142,7 @@ firebase.initializeApp(firebaseConfig);
         button.onclick = function(){ setSongButtons(item, artist); } ;   
         document.getElementById('albums').appendChild(album);
         document.getElementById("Album_" + index).appendChild(button);
-        //document.getElementById("album_back").onclick = function(){setArtistButtons()};
+        document.getElementById("album_back").onclick = function(){albumBack()};
     });
   }
 
@@ -163,9 +163,27 @@ firebase.initializeApp(firebaseConfig);
       button.onclick = function(){ setAudioPlayer(item); } ;   
       document.getElementById('songs').appendChild(song);
       document.getElementById("Song_" + index).appendChild(button);
-      //document.getElementById("song_back").onclick = function(){ setAlbumButtons(artist); };
+      document.getElementById("song_back").onclick = function(){ songBack(); };
       UpdateSongInfo(item, button.id);
     });
+  }
+
+  const songBack = () => {
+    document.getElementById('songs').innerHTML = "";
+    document.getElementById('artist_container').style.display = 'none';
+    document.getElementById('song_container').style.display = 'none';
+
+    document.getElementById('album_container').style.display = 'inline-block';
+
+  }
+
+  const albumBack = () => {
+    document.getElementById('albums').innerHTML = "";
+    document.getElementById('artist_container').style.display = 'inline-block';
+    document.getElementById('song_container').style.display = 'none';
+
+    document.getElementById('album_container').style.display = 'none';
+
   }
 
   const setAudioPlayer = (songURL) => {
@@ -283,15 +301,7 @@ firebase.initializeApp(firebaseConfig);
         </div>
       </section>
       <section class="song_container" id="song_container">
-        <button id ="song_back" onClick="function(){
-            document.getElementById('artist_container').style.display = 'none';
-            document.getElementById('song_container').style.display = 'none';
-
-            document.getElementById('album_container').style.display = 'inline-block';
-
-          };>
-          Back
-        </button>
+        <button id ="song_back">Back</button>
         <div class="one"> 
           <ul id="songs"></ul> 
         </div>
