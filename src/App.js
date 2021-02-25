@@ -4,13 +4,12 @@ import firebase from 'firebase/app';
 import "firebase/auth";
 import ReactAudioPlayer from 'react-audio-player';
 import React from "react";
+import ReactDOM from "react-dom";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
-  Redirect,
-  useHistory
+  useParams
 } from "react-router-dom";
 import { useState } from 'react';
 
@@ -34,8 +33,8 @@ firebase.initializeApp(firebaseConfig);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const provider = new firebase.auth.GoogleAuthProvider();
   var songs = [];
-  var artists = [];
-  var albums = [];
+  var artist_album = {};
+  var album_song = {};
 
   const googleSignIn = () => {
     firebase.auth()
@@ -97,51 +96,133 @@ firebase.initializeApp(firebaseConfig);
         if (Http.responseText)
          {
           songs = JSON.parse(Http.responseText);
-
-          // document.getElementById('songInfo').style.display = 'inline-block';
-          // document.getElementById("songInfo").src = songs;
           songs.forEach(function callback(item, index) {
-            var song = document.createElement("LI");
-            var button = document.createElement("BUTTON");
-            button.innerHTML = "Song " + index; 
-            song.id = "Song_" + index;
-            button.id = "Song_button_" + index;
-            button.className = "song_btn";
-            button.onclick = function(){ setAudioPlayer(item); } ;   
-            document.getElementById('songs').appendChild(song);
-            document.getElementById("Song_" + index).appendChild(button);
-            UpdateSongInfo(item, button.id);
+            BuildDirLists(item);
           });
+          setArtistButtons();
          }
       }
     }
+  }
+
+  const setArtistButtons = () => {
+    document.getElementById('artist_container').style.display = 'inline-block';
+    document.getElementById('song_container').style.display = 'none';
+
+    document.getElementById('album_container').style.display = 'none';
+
+      var keys = Object.keys(artist_album);
+      keys.forEach(function callback(item, index) {
+        var artist = document.createElement("LI");
+        var button = document.createElement("BUTTON");
+        button.innerHTML = "Artist " + index; 
+        artist.id = "Artist_" + index;
+        button.id = "Artist_button_" + index;
+        button.className = "artist_btn";
+        button.onclick = function(){ setAlbumButtons(item); } ;   
+        document.getElementById('artists').appendChild(artist);
+        document.getElementById("Artist_" + index).appendChild(button);
+    });
+  }
+
+  const setAlbumButtons = (artist) => {
+    document.getElementById('artist_container').style.display = 'none';
+    document.getElementById('song_container').style.display = 'none';
+
+    document.getElementById('album_container').style.display = 'inline-block';
+
+      var keys = artist_album[artist];
+      keys.forEach(function callback(item, index) {
+        var album = document.createElement("LI");
+        var button = document.createElement("BUTTON");
+        button.innerHTML = "Album " + index; 
+        album.id = "Album_" + index;
+        button.id = "Album_button_" + index;
+        button.className = "album_btn";
+        button.onclick = function(){ setSongButtons(item, artist); } ;   
+        document.getElementById('albums').appendChild(album);
+        document.getElementById("Album_" + index).appendChild(button);
+        //document.getElementById("album_back").onclick = function(){setArtistButtons()};
+    });
+  }
+
+  const setSongButtons = (album, artist) => {
+    document.getElementById('album_container').style.display = 'none';
+    document.getElementById('artist_container').style.display = 'none';
+
+    document.getElementById('song_container').style.display = 'inline-block';
+
+    var keys = album_song[album];
+    keys.forEach(function callback(item, index) {
+      var song = document.createElement("LI");
+      var button = document.createElement("BUTTON");
+      button.innerHTML = "Song " + index; 
+      song.id = "Song_" + index;
+      button.id = "Song_button_" + index;
+      button.className = "song_btn";
+      button.onclick = function(){ setAudioPlayer(item); } ;   
+      document.getElementById('songs').appendChild(song);
+      document.getElementById("Song_" + index).appendChild(button);
+      //document.getElementById("song_back").onclick = function(){ setAlbumButtons(artist); };
+      UpdateSongInfo(item, button.id);
+    });
   }
 
   const setAudioPlayer = (songURL) => {
     document.getElementById('songPlayer').src = songURL;
   }
 
+  const BuildDirLists = (link) => {
+    var path = link.split('/');
+    var song = link;
+    var album = ParseUrl(path[4]);
+    var artist = ParseUrl(path[3]);
+
+    if (artist in artist_album){
+      if(album in artist_album[artist]){
+        
+      }else{
+        artist_album[artist].push(album);
+      }
+        
+    }else {
+      artist_album[artist] = [];
+      artist_album[artist].push(album);
+    }
+    
+    if (album in album_song){
+      album_song[album].push(song);
+      
+    } else{
+      album_song[album] = [];
+      album_song[album].push(song);
+    } 
+    
+  }
+
   const UpdateSongInfo = (link, songID)  =>  {
     var path = link.split('/');
 
-    // document.getElementById("artist").innerHTML = PathFromUrl(path[1]);
-    // document.getElementById("album").innerHTML = PathFromUrl(path[2]);
-    document.getElementById(songID).innerHTML = PathFromUrl(path[4]) + "/" + PathFromUrl(path[5]).split('?')[0];
-    console.log(PathFromUrl(path[0]));
-    console.log(PathFromUrl(path[1]));
-    console.log(PathFromUrl(path[2]));
-    console.log(PathFromUrl(path[3]));
-    console.log(PathFromUrl(path[4]));
-    console.log(PathFromUrl(path[5]).split('?')[0]);
+    // document.getElementById("artist").innerHTML = ParseUrl(path[1]);
+    // document.getElementById("album").innerHTML = ParseUrl(path[2]);
+    document.getElementById(songID).innerHTML = ParseUrl(path[4]) + "/" + ParseUrl(path[5]).split('?')[0];
+    console.log(ParseUrl(path[0]));
+    console.log(ParseUrl(path[1]));
+    console.log(ParseUrl(path[2]));
+    console.log(ParseUrl(path[3]));
+    console.log(ParseUrl(path[4]));
+    console.log(ParseUrl(path[5]).split('?')[0]);
     console.log(link);
 
   }
 
- const PathFromUrl = (path)  =>  {
+ const ParseUrl = (path)  =>  {
     path = path.replace(/%20/g, " ");
     path = path.replace(/\.mp3/g, "");
     return path;
   }
+
+
 
 
 
@@ -181,7 +262,36 @@ firebase.initializeApp(firebaseConfig);
       </button>
       <h2>Shamify</h2>
       {handleGetRequest()}
-      <section class="container">
+
+      <section class="artist_container" id="artist_container">
+        <div class="one"> 
+          <ul id="artists"></ul> 
+        </div>
+        <div class="two">      
+          
+        </div>
+      </section>
+      <section class="album_container" id="album_container">
+        <button id ="album_back">
+          Back
+        </button>
+        <div class="one"> 
+          <ul id="albums"></ul> 
+        </div>
+        <div class="two">      
+          
+        </div>
+      </section>
+      <section class="song_container" id="song_container">
+        <button id ="song_back" onClick="function(){
+            document.getElementById('artist_container').style.display = 'none';
+            document.getElementById('song_container').style.display = 'none';
+
+            document.getElementById('album_container').style.display = 'inline-block';
+
+          };>
+          Back
+        </button>
         <div class="one"> 
           <ul id="songs"></ul> 
         </div>
@@ -197,5 +307,6 @@ firebase.initializeApp(firebaseConfig);
     )
   }
 }
+
 
 export default App; 
