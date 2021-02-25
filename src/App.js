@@ -115,7 +115,7 @@ firebase.initializeApp(firebaseConfig);
       keys.forEach(function callback(item, index) {
         var artist = document.createElement("LI");
         var button = document.createElement("BUTTON");
-        button.innerHTML = "Artist " + index; 
+        button.innerHTML = item; 
         artist.id = "Artist_" + index;
         button.id = "Artist_button_" + index;
         button.className = "artist_btn";
@@ -135,7 +135,7 @@ firebase.initializeApp(firebaseConfig);
       keys.forEach(function callback(item, index) {
         var album = document.createElement("LI");
         var button = document.createElement("BUTTON");
-        button.innerHTML = "Album " + index; 
+        button.innerHTML = item; 
         album.id = "Album_" + index;
         button.id = "Album_button_" + index;
         button.className = "album_btn";
@@ -197,8 +197,8 @@ firebase.initializeApp(firebaseConfig);
     var artist = ParseUrl(path[3]);
 
     if (artist in artist_album){
-      if(album in artist_album[artist]){
-        
+      if(artist_album[artist].includes(album)){
+        console.log(album);
       }else{
         artist_album[artist].push(album);
       }
@@ -223,13 +223,12 @@ firebase.initializeApp(firebaseConfig);
 
     // document.getElementById("artist").innerHTML = ParseUrl(path[1]);
     // document.getElementById("album").innerHTML = ParseUrl(path[2]);
-    document.getElementById(songID).innerHTML = ParseUrl(path[4]) + "/" + ParseUrl(path[5]).split('?')[0];
+    document.getElementById(songID).innerHTML = ParseUrl(path[5]).split('?')[0];
     console.log(ParseUrl(path[0]));
     console.log(ParseUrl(path[1]));
     console.log(ParseUrl(path[2]));
-    console.log(ParseUrl(path[3]));
     console.log(ParseUrl(path[4]));
-    console.log(ParseUrl(path[5]).split('?')[0]);
+    console.log(ParseUrl(path[5]));
     console.log(link);
 
   }
@@ -268,7 +267,7 @@ firebase.initializeApp(firebaseConfig);
         </div>
          <br/>
         <button className="googleButton" id = "googlesignin" onClick={googleSignIn}>
-          Sign In - Google
+          Google Sign In 
         </button>
       </div>
     );
