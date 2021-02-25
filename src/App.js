@@ -34,6 +34,8 @@ firebase.initializeApp(firebaseConfig);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const provider = new firebase.auth.GoogleAuthProvider();
   var songs = [];
+  var artists = [];
+  var albums = [];
 
   const googleSignIn = () => {
     firebase.auth()
@@ -99,12 +101,16 @@ firebase.initializeApp(firebaseConfig);
           // document.getElementById('songInfo').style.display = 'inline-block';
           // document.getElementById("songInfo").src = songs;
           songs.forEach(function callback(item, index) {
-            var song = document.createElement("LI");   // Create a <button> element
-            song.innerHTML = "Song " + index; 
+            var song = document.createElement("LI");
+            var button = document.createElement("BUTTON");
+            button.innerHTML = "Song " + index; 
             song.id = "Song_" + index;
-            song.onclick = function(){ setAudioPlayer(item); } ;                 // Insert text
+            button.id = "Song_button_" + index;
+            button.className = "song_btn";
+            button.onclick = function(){ setAudioPlayer(item); } ;   
             document.getElementById('songs').appendChild(song);
-            UpdateSongInfo(item, song.id);
+            document.getElementById("Song_" + index).appendChild(button);
+            UpdateSongInfo(item, button.id);
           });
          }
       }
@@ -170,7 +176,10 @@ firebase.initializeApp(firebaseConfig);
   } else {
     return (
       <div className="App">
-      <h2>Artists</h2>
+      <button className="signOutButton" id= "signout" onClick={handleSignOut}>
+        Sign Out
+      </button>
+      <h2>Shamify</h2>
       {handleGetRequest()}
       <section class="container">
         <div class="one"> 
@@ -184,9 +193,6 @@ firebase.initializeApp(firebaseConfig);
           />
         </div>
       </section>
-        <button className="signOutButton" id= "signout" onClick={handleSignOut}>
-          Sign Out
-        </button>
       </div>
     )
   }
