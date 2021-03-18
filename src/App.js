@@ -86,7 +86,7 @@ firebase.initializeApp(firebaseConfig);
 
   const handleGetRequest = () => {
     const Http = new XMLHttpRequest();
-    const url='https://1o6q3c8scf.execute-api.us-east-1.amazonaws.com/s3';
+    const url='https://brl2mkylte.execute-api.us-east-1.amazonaws.com/s3';
     Http.open("GET", url);
     Http.send();
 
@@ -103,6 +103,25 @@ firebase.initializeApp(firebaseConfig);
          }
       }
     }
+  }
+
+  const handlePostRequest = (artist, album, song) => {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify({"artist": artist,"album": album,"song": song});
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      mode: "no-cors"
+    };
+
+    fetch("https://h4kd8fwap2.execute-api.us-east-1.amazonaws.com/dev/play", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
   }
 
   const setArtistButtons = () => {
@@ -160,7 +179,17 @@ firebase.initializeApp(firebaseConfig);
       song.id = "Song_" + index;
       button.id = "Song_button_" + index;
       button.className = "song_btn";
-      button.onclick = function(){ setAudioPlayer(item); } ;   
+      button.onclick = function(){ 
+        setAudioPlayer(item); 
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://nmw84e4zl7.execute-api.us-east-1.amazonaws.com/dev/play", true);
+        xhr.setRequestHeader('Content-Type', 'application/json', "Authorization","Authorization");
+        xhr.send(JSON.stringify({
+            artist: artist,
+            album: album,
+            song: "Song " + index
+        }));
+      } ;   
       document.getElementById('songs').appendChild(song);
       document.getElementById("Song_" + index).appendChild(button);
       document.getElementById("song_back").onclick = function(){ songBack(); };
